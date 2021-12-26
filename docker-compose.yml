@@ -12,3 +12,11 @@ services:
     volumes:
       - ./web_app:/app
       - /web_app/node_modules/
+  serv_go:
+    container_name: api
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    command: ["./main"]
+    ports:
+    - 8081:8081
