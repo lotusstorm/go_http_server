@@ -1,13 +1,15 @@
-# syntax=docker/dockerfile:1
+FROM golang:1.17-alpine
 
-FROM golang:latest
+RUN apk update && apk upgrade && \
+    apk add --no-cache bash git openssh
 
 WORKDIR /app
 
-COPY go.mod ./
-COPY go.sum ./
+COPY go.mod go.sum ./
 RUN go mod download
+COPY . .
 
-COPY *.go ./
+RUN go install github.com/cespare/reflex@latest
 
-RUN go build -o main .
+EXPOSE 5000
+CMD exec reflex -r '(\.go$|go\.mod)' go run main.go --start-service
