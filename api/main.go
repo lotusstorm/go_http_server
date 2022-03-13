@@ -3,5 +3,7 @@ package main
 import "bookstore/src"
 
 func main() {
-	src.Start()
+	app := src.App{}
+	app.Configure()
+	app.Run()
 }

@@ -1,8 +1,15 @@
-FROM node:16.13.1
+FROM node:lts-alpine
 
 WORKDIR /app
-COPY package.json package-lock.json /app/
+
+RUN chown -R node:node .
+
+USER node
+
+COPY ["package.json", "package-lock.json*", "./"]
+
 RUN npm ci
+
 COPY . .
 
-# ENTRYPOINT ["npm", "run", "dev"]
+CMD ["npm", "run", "dev"]

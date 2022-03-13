@@ -2,74 +2,95 @@ package src
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
 )
 
-func getBook(w http.ResponseWriter, r *http.Request) {
+func (app *App) checkBookExists(field string, value string) bool {
+	var count int64
+	err := app.DB.Model(&Book{}).Select("id").Where(fmt.Sprintf("%s = ?", field), value).Count(&count).Error
+	if err != nil {
+		return false
+	}
+	if count > 0 {
+		return true
+	}
+	return false
+}
+
+func (app *App) getBook(w http.ResponseWriter, r *http.Request) {
+	var book Book
 	vars := mux.Vars(r)
 	bookId, _ := strconv.Atoi(vars["book_id"])
-	for _, book := range booksDB {
-		if book.Id == bookId {
-			_ = json.NewEncoder(w).Encode(book)
-			return
-		}
+	result := app.DB.First(&book, bookId)
+	if result.Error == nil {
+		_ = json.NewEncoder(w).Encode(book)
+		return
 	}
 	JSONResponse(w, http.StatusNotFound, "")
 }
 
-func getAllBooks(w http.ResponseWriter, r *http.Request) {
-	_ = json.NewEncoder(w).Encode(booksDB)
+func (app *App) getAllBooks(w http.ResponseWriter, r *http.Request) {
+	var books []Book
+	_ = app.DB.Order("id asc").Find(&books)
+	_ = json.NewEncoder(w).Encode(books)
 }
 
-func addBook(w http.ResponseWriter, r *http.Request) {
+func (app *App) addBook(w http.ResponseWriter, r *http.Request) {
+	var book Book
 	decoder := json.NewDecoder(r.Body)
-	var b Book
-	err := decoder.Decode(&b)
+	err := decoder.Decode(&book)
 	if err != nil {
 		JSONResponse(w, http.StatusBadRequest, "")
 		return
 	}
-	if checkDuplicateBookId(booksDB, b.Id) {
+	if app.checkBookExists("title", book.Title) {
 		JSONResponse(w, http.StatusConflict, "")
 		return
 	}
-	booksDB = append(booksDB, b)
-	w.WriteHeader(201)
-	_ = json.NewEncoder(w).Encode(b)
+	result := app.DB.Create(&book)
+	if result.Error == nil {
+		w.WriteHeader(201)
+		_ = json.NewEncoder(w).Encode(book)
+	}
 }
 
-func updateBook(w http.ResponseWriter, r *http.Request) {
+func (app *App) updateBook(w http.ResponseWriter, r *http.Request) {
+	var book Book
+	var newBook Book
 	vars := mux.Vars(r)
 	bookId, _ := strconv.Atoi(vars["book_id"])
 	decoder := json.NewDecoder(r.Body)
-	var b Book
-	err := decoder.Decode(&b)
+	err := decoder.Decode(&newBook)
 	if err != nil {
 		JSONResponse(w, http.StatusBadRequest, "")
 		return
 	}
-	for i, book := range booksDB {
-		if book.Id == bookId {
-			booksDB[i] = b
-			_ = json.NewEncoder(w).Encode(b)
-			return
-		}
+	if app.checkBookExists("title", newBook.Title) {
+		JSONResponse(w, http.StatusConflict, "")
+		return
+	}
+	result := app.DB.First(&book, bookId)
+	if result.Error == nil {
+		newBook.Id = bookId
+		app.DB.Save(&newBook)
+		_ = json.NewEncoder(w).Encode(newBook)
+		return
 	}
 	JSONResponse(w, http.StatusNotFound, "")
 }
 
-func deleteBook(w http.ResponseWriter, r *http.Request) {
+func (app *App) deleteBook(w http.ResponseWriter, r *http.Request) {
+	var book Book
 	vars := mux.Vars(r)
 	bookId, _ := strconv.Atoi(vars["book_id"])
-	for i, book := range booksDB {
-		if book.Id == bookId {
-			booksDB = removeBook(booksDB, i)
-			_ = json.NewEncoder(w).Encode(book)
-			return
-		}
+	result := app.DB.First(&book, bookId)
+	if result.Error == nil {
+		app.DB.Delete(&book)
+		return
 	}
 	JSONResponse(w, http.StatusNotFound, "")
 }

@@ -1,16 +1,10 @@
 package src
 
 type Book struct {
-	Id     int    `json:"id"`
+	Id     int    `json:"id" gorm:"primaryKey"`
 	Title  string `json:"title"`
 	Author string `json:"author"`
 	Genre  string `json:"genre"`
-}
-
-var booksDB = []Book{
-	{Id: 123, Title: "The Hobbit", Author: "J. R. R. Tolkien", Genre: "Fantasy"},
-	{Id: 456, Title: "Harry Potter and the Philosopher's Stone", Author: "J. K. Rowling", Genre: "Fantasy"},
-	{Id: 789, Title: "The Little Prince", Author: "Antoine de Saint-Exupéry", Genre: "Novella"},
 }
 
 type CustomResponse struct {
