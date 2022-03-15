@@ -1,22 +1,25 @@
 <template>
   <div class="container">
-    <textarea class="textarea" rows="10" placeholder="question" />
+    <textarea v-model="question" class="textarea" rows="10" placeholder="question" />
     <div class="controles">
-      <span>answer</span>
       <label>
         switch
         <input v-model="isMulty" type="checkbox" />
       </label>
       <AppButton @click="handleIsEditClick"> + </AppButton>
     </div>
-    <AppEditor v-if="isEdit" @save="handleAddClick" />
-    {{ selectedAnswers }}
+
+    <AppEditor
+      v-if="isEdit"
+      @save="handleAddClick"
+      @cancel="handleCancelClick"
+    />
     <div class="answers-list">
       <div v-for="answer of answersList" :key="answer.id" class="answers-item">
         <AppAnswerItem
           :index="answer.id"
           :text="answer.text"
-          @save="handleSaveClick($event, answer)"
+          @save="handleUpdateClick($event, answer)"
         >
           <template #prepend>
             <AppAnswerPicker
@@ -29,11 +32,12 @@
         </AppAnswerItem>
       </div>
     </div>
+    <AppButton @click="handlSeaveClick"> Save </AppButton>
   </div>
 </template>
 
 <script setup>
-import { reactive, ref } from "vue";
+import { reactive, ref, watch } from "vue";
 import AppAnswerItem from "@/components/AppAnswerItem.vue";
 import AppButton from "./components/AppButton.vue";
 import AppEditor from "@/components/AppEditor.vue";
@@ -41,9 +45,14 @@ import AppAnswerPicker from "./components/AppAnswerPicker.vue";
 
 const answersList = reactive([]);
 const selectedAnswers = ref([]);
+const question = ref("");
 
 const isEdit = ref(false);
 const isMulty = ref(false);
+
+watch(isMulty, () => {
+  selectedAnswers.value = [];
+});
 
 const handleIsEditClick = () => {
   isEdit.value = true;
@@ -55,13 +64,24 @@ const handleAddClick = (value) => {
   answersList.push({
     id: answersList.length,
     text: value,
-    isTrueAnswer: false,
   });
 };
 
-const handleSaveClick = (text, item) => {
+const handleUpdateClick = (text, item) => {
   item.text = text;
-  console.log(text, item);
+};
+
+const handleCancelClick = () => {
+  isEdit.value = false;
+};
+
+const handlSeaveClick = () => {
+  // const quiz = {
+  //   question: question.value,
+  //   answers: selectedAnswers.value,
+  //   answer: answersList.value,
+  //   multySelect: isMulty.value,
+  // };
 };
 </script>
 

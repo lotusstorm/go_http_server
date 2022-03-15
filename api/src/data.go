@@ -1,10 +1,29 @@
 package src
 
-type Book struct {
-	Id     int    `json:"id" gorm:"primaryKey"`
-	Title  string `json:"title"`
-	Author string `json:"author"`
-	Genre  string `json:"genre"`
+// type Book struct {
+// 	Id     int    `json:"id" gorm:"primaryKey"`
+// 	Title  string `json:"title"`
+// 	Author string `json:"author"`
+// 	Genre  string `json:"genre"`
+// }
+
+type Quiz struct {
+	ID       int      `json:"id" gorm:"primaryKey"`
+	Question string   `json:"question"`
+	Answers  []Answer `json:"answers" gorm:"foreignKey:QuizID"`
+	// SelectedAnswer []SelectedAnswer `json:"answer" gorm:"foreignKey:AnswerID"`
+	MultySelect bool `json:"multySelect"`
+}
+
+type Answer struct {
+	ID     int    `json:"id"`
+	Text   string `json:"text"`
+	QuizID int
+}
+
+type SelectedAnswer struct {
+	ID       int
+	AnswerID int
 }
 
 type CustomResponse struct {

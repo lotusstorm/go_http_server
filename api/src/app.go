@@ -20,7 +20,7 @@ type App struct {
 
 func (app *App) Configure() {
 	app.configureEnv()
-	app.configureDB()
+	app.configureQuizDB()
 	app.configureRoutes()
 	app.configureMiddleware()
 }
@@ -38,7 +38,18 @@ func (app *App) configureEnv() {
 	app.Config.loadEnv()
 }
 
-func (app *App) configureDB() {
+// func (app *App) configureBookDB() {
+// 	var err error
+// 	app.DB, err = gorm.Open(postgres.Open(app.Config.DBString), &gorm.Config{})
+
+// 	if err != nil {
+// 		log.Fatalln(err)
+// 	}
+
+// 	_ = app.DB.AutoMigrate(&Book{})
+// }
+
+func (app *App) configureQuizDB() {
 	var err error
 	app.DB, err = gorm.Open(postgres.Open(app.Config.DBString), &gorm.Config{})
 
@@ -46,7 +57,7 @@ func (app *App) configureDB() {
 		log.Fatalln(err)
 	}
 
-	_ = app.DB.AutoMigrate(&Book{})
+	_ = app.DB.AutoMigrate(&Quiz{}, &Answer{}, &SelectedAnswer{})
 }
 
 func (app *App) configureMiddleware() {
@@ -55,9 +66,13 @@ func (app *App) configureMiddleware() {
 
 func (app *App) configureRoutes() {
 	app.Router = mux.NewRouter()
-	app.Router.HandleFunc("/book", app.getAllBooks).Methods(http.MethodGet)
-	app.Router.HandleFunc("/book", app.addBook).Methods(http.MethodPost)
-	app.Router.HandleFunc("/book/{book_id:[0-9]+}", app.getBook).Methods(http.MethodGet)
-	app.Router.HandleFunc("/book/{book_id:[0-9]+}", app.updateBook).Methods(http.MethodPut)
-	app.Router.HandleFunc("/book/{book_id:[0-9]+}", app.deleteBook).Methods(http.MethodDelete)
+	// app.Router.HandleFunc("/book", app.getAllBooks).Methods(http.MethodGet)
+	// app.Router.HandleFunc("/book", app.addBook).Methods(http.MethodPost)
+	// app.Router.HandleFunc("/book/{book_id:[0-9]+}", app.getBook).Methods(http.MethodGet)
+	// app.Router.HandleFunc("/book/{book_id:[0-9]+}", app.updateBook).Methods(http.MethodPut)
+	// app.Router.HandleFunc("/book/{book_id:[0-9]+}", app.deleteBook).Methods(http.MethodDelete)
+
+	app.Router.HandleFunc("/quiz", app.addQuiz).Methods(http.MethodPost)
+	app.Router.HandleFunc("/quiz", app.getAllQuizs).Methods(http.MethodGet)
+
 }

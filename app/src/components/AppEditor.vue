@@ -6,7 +6,10 @@
       rows="10"
       placeholder="answer"
     />
-    <AppButoon class="button" @click="handleSaveClick"> Save </AppButoon>
+    <div class="controles">
+      <AppButoon class="button" @click="handleSaveClick"> Save </AppButoon>
+      <AppButoon class="button" @click="handleCancelClick"> Cancel </AppButoon>
+    </div>
   </div>
 </template>
 
@@ -23,12 +26,18 @@ const props = defineProps({
 
 const emit = defineEmits({
   save: null,
+  cancel: null,
 });
 
 const innerText = ref(props.text);
 
 const handleSaveClick = () => {
   emit("save", innerText.value);
+};
+
+const handleCancelClick = () => {
+  console.log('dddddddddd');
+  emit("cancel");
 };
 </script>
 
@@ -45,5 +54,14 @@ const handleSaveClick = () => {
   border-radius: 0.5rem;
   padding: 0.35rem;
   margin-bottom: 0.5rem;
+}
+
+.controles {
+  display: flex;
+  flex-flow: row;
+}
+
+.button:not(:last-child) {
+  margin-right: 0.25rem;
 }
 </style>

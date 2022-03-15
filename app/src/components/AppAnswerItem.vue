@@ -1,6 +1,11 @@
 <template>
   <div class="answer-item-root">
-    <AppEditor v-if="isEdit" :text="text" @save="handleSaveClick" />
+    <AppEditor
+      v-if="isEdit"
+      :text="text"
+      @save="handleSaveClick"
+      @cancel="handleCancelClick"
+    />
     <div v-else class="preview">
       <div class="item">
         <slot name="prepend" />
@@ -47,6 +52,10 @@ const handleIsEditClick = () => {
 const handleSaveClick = (value) => {
   isEdit.value = false;
   emit("save", value);
+};
+
+const handleCancelClick = () => {
+  isEdit.value = false;
 };
 </script>
 

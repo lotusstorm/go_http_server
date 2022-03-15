@@ -1,5 +1,8 @@
 version: "3.3"
 
+volumes:
+  postgresql_volume: 
+
 services:
 
   web-app:
@@ -18,7 +21,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./db:/var/lib/postgresql/data
+      - postgresql_volume:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
